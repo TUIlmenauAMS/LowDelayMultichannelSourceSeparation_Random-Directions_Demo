@@ -4,7 +4,7 @@ To let the notebook run in Google Colab, click on the colab button, and then, fo
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/TUIlmenauAMS/LowDelayMultichannelSourceSeparation_Random-Directions_Demo/blob/main/online_multichannel_source_separation_random_directions_demo.ipynb)
 
-This is an online multichannel audio source separation demo, including the random directions software for own experiments, as described for instance in the Asilomar Conference on Signals, Systems, and Computers 2021 talk and paper. A quicker file based demo can be found in:
+This is an online multichannel audio source separation demo, including the random directions software for own experiments, as described for instance in the Asilomar Conference on Signals, Systems, and Computers 2021 talk and paper (see also https://arxiv.org/abs/2204.05609). A quicker file based demo can be found in:
 
 https://github.com/TUIlmenauAMS/LowDelayMultichannelSourceSeparation
 
