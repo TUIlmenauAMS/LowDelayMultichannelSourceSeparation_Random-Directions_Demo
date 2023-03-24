@@ -42,7 +42,7 @@ print("audio0.shape=", audio0.shape)
 fs , audio1 = wavfile.read('SI889_48000.wav')
 """
 
-def room_mix(files, micsetup='stereo', plot=True):
+def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
    #Files: List of files with the audio sources
    #plot=True: Room setup is plotted
    #micsetup='cube' #'square' 'stereo' : possible microphone setups
@@ -52,11 +52,15 @@ def room_mix(files, micsetup='stereo', plot=True):
    fs , audio1 = wavfile.read(files[1])
 
    # The desired reverberation time and dimensions of the room
-   rt60 = 0.1  # seconds
+   #rt60 = 0.1# seconds
+   print("rt60=", rt60)
+   
    room_dim = [5, 4, 2.5]  # meters
 
    # We invert Sabine's formula to obtain the parameters for the ISM simulator
    e_absorption, max_order = pra.inverse_sabine(rt60, room_dim)
+   
+   print("e_absorption=", e_absorption,"max_order =", max_order) 
 
    # Create the room
    room = pra.ShoeBox(
@@ -126,8 +130,8 @@ def room_mix(files, micsetup='stereo', plot=True):
    return
 
 if __name__ == "__main__":
-   files=('pinkish16.wav', 'espeakwav_16.wav')
-   #files=('espeakfemale_16.wav', 'espeakwav_16.wav')
+   #files=('pinkish16.wav', 'espeakwav_16.wav')
+   files=('espeakfemale_16.wav', 'espeakwav_16.wav')
    #room_mix(files, micsetup='cube', plot=True)
    room_mix(files, micsetup='stereo', plot=True)
 
