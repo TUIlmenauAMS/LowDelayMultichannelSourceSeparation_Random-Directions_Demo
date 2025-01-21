@@ -10,4 +10,6 @@ https://github.com/TUIlmenauAMS/LowDelayMultichannelSourceSeparation
 
 But the present notebook also contains the separation algorithms, such you can run them by running the notebook, and listen to the result. Also the audio source files for the room simulation can be replaced by other files, or the output of the room simulation can be replaced by other multichannel audio files, which already contain mixed audio sources. You can change the audio sources for the room simulation in the "Simulated Room" cell in line 7, "files=", or by providing a multichannel mixed file with a different name there in line 6, "mixfile=". If you upload a file into Colab, using the folder and upload icon on the left, use the path "/content/..." for your file name in the program (otherwise there will be an error message).
 
+"ICAabskl_puredelay_online_soundcard_headphones_callback.py" is a real time demo for headphones and a stereo microphone, with a graphical TKinter interface. It allows toggling separation on and off, and playing back separated sources switched as mono or separaetely on each side (left and right as stereo).
+
 Gerald Schuller, November 2021.
