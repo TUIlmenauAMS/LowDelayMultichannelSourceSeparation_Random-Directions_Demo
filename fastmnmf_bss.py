@@ -7,6 +7,7 @@ import scipy.io.wavfile as wav
 import time
 import os
 import matplotlib.pyplot as plt
+#!pip3 install pyroomacoustics==0.7.3
 #from pyroomacoustics.bss.trinicon import trinicon
 
 
@@ -56,12 +57,12 @@ def separation_fastmnmf(mixfile, plot=True):
    hop = fft_size // 2  # half-overlap
    win_a = pra.hann(fft_size)  # analysis window
    # optimal synthesis window
-   win_s = pra.transform.compute_synthesis_window(win_a, hop)
+   win_s = pra.transform.stft.compute_synthesis_window(win_a, hop)
 
    # STFT
    # audio.shape == (nsamples, nchannels)
    # X.shape == (nframes, nfrequencies, nchannels)
-   X = pra.transform.analysis(X, fft_size, hop, win=win_a)
+   X = pra.transform.stft.analysis(X, fft_size, hop, win=win_a)
 
    # Separation
    #Y = pra.bss.auxiva(X, n_iter=20)
@@ -70,7 +71,7 @@ def separation_fastmnmf(mixfile, plot=True):
    # iSTFT (introduces an offset of `hop` samples)
    # X_sep contains the time domain separated signals
    # X_sep.shape == (new_nsamples, nchannels)
-   X_sep = pra.transform.synthesis(Y, fft_size, hop, win=win_s)
+   X_sep = pra.transform.stft.synthesis(Y, fft_size, hop, win=win_s)
    X_sep = X_sep[hop:,:]   #compensate for delay of hop size
    print("X_sep.shape=", X_sep.shape)
    #X_sep, demixmat = trinicon(X.T, filter_length=2048, return_filters=True)
@@ -96,7 +97,9 @@ if __name__ == '__main__':
    #Signal to separate:
    #mixfile= "mix16000ampcubetones.wav"
    #mixfile = "mix16000stereo_espeechf_espeechm.wav"
-   mixfile = "mix16000.wav"
+   #mixfile = "mix16000.wav"
+   #mixfile="stereomusicnoise.wav"
+   mixfile="musicnoiselivingroom.wav"
    processingtime, X_sep=separation_fastmnmf(mixfile, plot=True)
 
    samplerate, X = wav.read(mixfile)
