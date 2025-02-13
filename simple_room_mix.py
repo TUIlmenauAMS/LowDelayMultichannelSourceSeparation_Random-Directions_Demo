@@ -60,13 +60,31 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
    # We invert Sabine's formula to obtain the parameters for the ISM simulator
    e_absorption, max_order = pra.inverse_sabine(rt60, room_dim)
    
+   # m = pra.Material(energy_absorption="hard_surface")
+   
+   m = pra.make_materials(
+      ceiling="hard_surface",
+      floor="hard_surface",
+      east="brickwork",
+      west="brickwork",
+      north="brickwork",
+      south="brickwork",
+      )
+   
    print("e_absorption=", e_absorption,"max_order =", max_order) 
 
    # Create the room
    room = pra.ShoeBox(
-       room_dim, fs=fs, materials=pra.Material(e_absorption), max_order=max_order
-   )
-
+       room_dim,
+       fs=fs,
+       #materials=pra.Material(e_absorption),
+       materials=m,
+       max_order=max_order,
+       # max_order=2,
+       ray_tracing=True,
+       air_absorption=True
+      )
+ 
    # import a mono wavfile as the source signal
    # the sampling frequency should match that of the room
 
@@ -127,6 +145,9 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
        bitdepth=np.int16,
    )
    print("wrote to mix16000.wav")
+   room.plot_rir()
+   plt.show()
+   
    return
 
 if __name__ == "__main__":
@@ -134,5 +155,6 @@ if __name__ == "__main__":
    files=('espeakfemale_16.wav', 'espeakwav_16.wav')
    #room_mix(files, micsetup='cube', plot=True)
    room_mix(files, micsetup='stereo', plot=True)
+   
 
 
