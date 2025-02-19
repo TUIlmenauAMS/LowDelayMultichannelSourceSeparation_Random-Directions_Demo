@@ -151,11 +151,30 @@ if __name__ == '__main__':
 
    #Signal to separate:
    #mixfile= "mix16000cubenoise.wav"
+   """
+   Generate Stereo signalwith two sources
+   """
+   from simple_room_mix import room_mix
+   files = ('espeakfemale_16.wav', 'espeakwav_16.wav')
+   room_mix(files, micsetup='stereo', plot=True, rt60=0.2)
+   #
+   """
+   Use the generated stereo for BSS
+   """   
    mixfile = "mix16000.wav"
-   processingtime, X_sep=separation_trinicon(mixfile, plot=True)
-   
    samplerate, X = wav.read(mixfile)
    print("samplerate=", samplerate)
+   
+   processingtime, X_sep=separation_trinicon(mixfile, plot=True)
+   wav.write("Channel_1.wav",samplerate,np.int16(np.clip(X_sep[:,0]*2**15,-2**15,2**15-1)))
+   wav.write("Channel_1.wav",samplerate,np.int16(np.clip(X_sep[:,1]*2**15,-2**15,2**15-1)))
+   
+   """
+   Listen the signals (I think the actual separated signal are not playedback), The Separated signas are stores in
+   sepchan1.wav and sepchan2.wav
+   
+   Why normalizing the signals below?
+   """
    chanout=2
    X_sep=X_sep*1.0/np.max(abs(X_sep))
    for c in range(chanout):
