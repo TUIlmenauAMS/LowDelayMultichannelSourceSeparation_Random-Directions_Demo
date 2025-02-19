@@ -71,8 +71,8 @@ def unmixing(coeffs, X, chanout, state=[]):
 def separation_trinicon(mixfile, plot=True):
    #Separates 2 audio sources from the multichannel mix in the mixfile,
    #Using the Trinicon method.
-   #plot=True plots the resulting unmixed wave forms.
-
+   plot=True # plots the resulting unmixed wave forms.
+   
    import scipy.io.wavfile as wav
    import scipy.optimize as opt
    import os
@@ -84,6 +84,11 @@ def separation_trinicon(mixfile, plot=True):
    print("X.shape=", X.shape)
    X=X*1.0/np.max(abs(X)) #normalize
 
+   
+      
+   """
+   What is the purpose of "blockaccumulator"?
+   """
    starttime=time.time()
    blocksize=8000
    #siglen=X.shape[0] #length of signal
@@ -99,6 +104,7 @@ def separation_trinicon(mixfile, plot=True):
       for i in range(min(blocks,16)): #accumulate audio blocks over about 3 seconds:
          blockaccumulator=0.98*blockaccumulator + 0.02*X[blockno*blocksize+np.arange(blocksize)]
          blockno+=1
+         plt.plot(blockaccumulator)
             
    chanout=2
    #According to:
@@ -106,7 +112,15 @@ def separation_trinicon(mixfile, plot=True):
    #Trinicon uses filter_length=2048 by default
    #Bss_eval can process time-invariant filter distortion of max filter length of 512
    #hard-coded for 2 output channels:
-   X_sep, demixmat = trinicon(blockaccumulator.T, filter_length=512, return_filters=True)
+
+   #X_sep, demixmat = trinicon(blockaccumulator.T, filter_length=512, return_filters=True)
+   
+   """
+   Without this "blockaccumulator" the results are more better even for RT = 0.3?
+   Below is example:
+   """
+   X_sep, demixmat = trinicon(X.T, filter_length=512, return_filters=True)
+   
    #For shorter filter length it takes longer and separation becomes worse!
    print("X_sep.shape=", X_sep.shape, "demixmat.shape=", demixmat.shape)
 

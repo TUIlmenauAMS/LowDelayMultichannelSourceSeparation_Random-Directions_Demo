@@ -43,7 +43,7 @@ fs , audio1 = wavfile.read('SI889_48000.wav')
 """
 
 
-def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
+def room_mix(files, micsetup='stereo', plot=True, rt60=0.2):
    # Files: List of files with the audio sources
    # plot=True: Room setup is plotted
    # micsetup='cube' #'square' 'stereo' : possible microphone setups
@@ -72,26 +72,31 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
    # Here is an example of using a realistic room for RIR synthesis while incorporating e_absorption with real-world materials
    m = pra.make_materials(
       ceiling="hard_surface",
-      floor="hard_surface",
-      east="brickwork",
-      west="brickwork",
-      north="brickwork",
-      south="brickwork",
+      floor="carpet_cotton",
+      east="plasterboard",
+      west="plasterboard",
+      north="wood_16mm",
+      south="wood_16mm",
       )
    
    print("e_absorption=", e_absorption, "max_order =", max_order)
    # Create the room
    # In main code ISM is use to calculate the RIR. The order is very high. Reason? I recommend order up to 2 or 3.
-    
+   """
+   room = pra.ShoeBox(
+       room_dim, fs=fs, materials=pra.Material(e_absorption), max_order=max_order
+   )
+   """
+   
    room = pra.ShoeBox(
       room_dim,
       fs=fs,
-      # materials=pra.Material(e_absorption),
+      #materials=pra.Material(e_absorption),
       materials=m,
-      max_order=max_order,
-      #max_order=2,
-      # ray_tracing=True,
-      air_absorption=True
+      #max_order=max_order,
+      max_order=2,
+      #ray_tracing=True,
+      #air_absorption=True
       )
 
    # import a mono wavfile as the source signal
@@ -146,7 +151,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
 
     # Run the simulation (this will also build the RIR automatically)
    room.simulate()
-
+   
    room.mic_array.to_wav(
         f"mix16000.wav",
         norm=True,
@@ -165,3 +170,9 @@ if __name__ == "__main__":
    room_mix(files, micsetup='stereo', plot=True)
    
    
+   """
+   Findings:
+      From here we are getting a sound (i.e. music etc.) wav file as a results of two speakers recorded at the a stereo steup of microphones (That is all)
+   """
+
+
