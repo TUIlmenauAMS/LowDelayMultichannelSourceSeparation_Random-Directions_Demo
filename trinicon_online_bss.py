@@ -87,7 +87,7 @@ def separation_trinicon(mixfile, plot=True):
    
       
    """
-   What is the purpose of "blockaccumulator"?
+   What is the purpose of "blockaccumulator"? It is confusing, how it has been clculated and updating what?
    """
    starttime=time.time()
    blocksize=8000
