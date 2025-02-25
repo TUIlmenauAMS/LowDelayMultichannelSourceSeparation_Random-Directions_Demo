@@ -1,3 +1,4 @@
+
 #Trinicon multichannel source separation from pyroomacoustics
 #Trinicon: Long FIR filters for demixing
 #Gerald Schuller, Aug. 5, 2021
@@ -71,8 +72,8 @@ def unmixing(coeffs, X, chanout, state=[]):
 def separation_trinicon(mixfile, plot=True):
    #Separates 2 audio sources from the multichannel mix in the mixfile,
    #Using the Trinicon method.
-   #plot=True plots the resulting unmixed wave forms.
-
+   plot=True # plots the resulting unmixed wave forms.
+   
    import scipy.io.wavfile as wav
    import scipy.optimize as opt
    import os
@@ -84,6 +85,11 @@ def separation_trinicon(mixfile, plot=True):
    print("X.shape=", X.shape)
    X=X*1.0/np.max(abs(X)) #normalize
 
+   
+      
+   """
+   What is the purpose of "blockaccumulator"? It is confusing, how it has been clculated and updating what?
+   """
    starttime=time.time()
    blocksize=8000
    #siglen=X.shape[0] #length of signal
@@ -99,6 +105,7 @@ def separation_trinicon(mixfile, plot=True):
       for i in range(min(blocks,16)): #accumulate audio blocks over about 3 seconds:
          blockaccumulator=0.98*blockaccumulator + 0.02*X[blockno*blocksize+np.arange(blocksize)]
          blockno+=1
+         plt.plot(blockaccumulator)
             
    chanout=2
    #According to:
@@ -106,7 +113,15 @@ def separation_trinicon(mixfile, plot=True):
    #Trinicon uses filter_length=2048 by default
    #Bss_eval can process time-invariant filter distortion of max filter length of 512
    #hard-coded for 2 output channels:
-   X_sep, demixmat = trinicon(blockaccumulator.T, filter_length=512, return_filters=True)
+
+   #X_sep, demixmat = trinicon(blockaccumulator.T, filter_length=512, return_filters=True)
+   
+   """
+   Without this "blockaccumulator" the results are more better even for RT = 0.3?
+   Below is example:
+   """
+   X_sep, demixmat = trinicon(X.T, filter_length=512, return_filters=True)
+   
    #For shorter filter length it takes longer and separation becomes worse!
    print("X_sep.shape=", X_sep.shape, "demixmat.shape=", demixmat.shape)
 
@@ -137,11 +152,30 @@ if __name__ == '__main__':
 
    #Signal to separate:
    #mixfile= "mix16000cubenoise.wav"
+   """
+   Generate Stereo signalwith two sources
+   """
+   from simple_room_mix import room_mix
+   files = ('espeakfemale_16.wav', 'espeakwav_16.wav')
+   room_mix(files, micsetup='stereo', plot=True, rt60=0.2)
+   #
+   """
+   Use the generated stereo for BSS
+   """   
    mixfile = "mix16000.wav"
-   processingtime, X_sep=separation_trinicon(mixfile, plot=True)
-   
    samplerate, X = wav.read(mixfile)
    print("samplerate=", samplerate)
+   
+   processingtime, X_sep=separation_trinicon(mixfile, plot=True)
+   wav.write("Channel_1.wav",samplerate,np.int16(np.clip(X_sep[:,0]*2**15,-2**15,2**15-1)))
+   wav.write("Channel_1.wav",samplerate,np.int16(np.clip(X_sep[:,1]*2**15,-2**15,2**15-1)))
+   
+   """
+   Listen the signals (I think the actual separated signal are not playedback), The Separated signas are stores in
+   sepchan1.wav and sepchan2.wav
+   
+   Why normalizing the signals below?
+   """
    chanout=2
    X_sep=X_sep*1.0/np.max(abs(X_sep))
    for c in range(chanout):

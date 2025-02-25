@@ -43,7 +43,7 @@ fs , audio1 = wavfile.read('SI889_48000.wav')
 """
 
 
-def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
+def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
    # Files: List of files with the audio sources
    # plot=True: Room setup is plotted
    # micsetup='cube' #'square' 'stereo' : possible microphone setups
@@ -54,8 +54,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
 
    # The desired reverberation time and dimensions of the room
    # rt60 = 0.1# seconds
-   print("rt60=", rt60)
-
+   
    room_dim = [5, 4, 2.5]  # meters
    """
    The calculation of material properties based on RT60 in Pyroomacoustics is an approximation and may not be entirely realistic when applied
@@ -66,40 +65,61 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
    """
 
    # We invert Sabine's formula to obtain the parameters for the ISM simulator
-   e_absorption, max_order = pra.inverse_sabine(rt60, room_dim)
+   
+   #e_absorption, max_order = pra.inverse_sabine(rt60, room_dim)
    # m = pra.Material(energy_absorption="hard_surface") # OR
    
    # Here is an example of using a realistic room for RIR synthesis while incorporating e_absorption with real-world materials
    m = pra.make_materials(
       ceiling="hard_surface",
-      floor="hard_surface",
-      east="brickwork",
-      west="brickwork",
-      north="brickwork",
-      south="brickwork",
+      floor="carpet_cotton",
+      east="plasterboard",
+      west="plasterboard",
+      north="wood_16mm",
+      south="wood_16mm",
       )
    
-   print("e_absorption=", e_absorption, "max_order =", max_order)
+   #print("e_absorption=", e_absorption, "max_order =", max_order)
+   
    # Create the room
    # In main code ISM is use to calculate the RIR. The order is very high. Reason? I recommend order up to 2 or 3.
-    
+   """
+   room = pra.ShoeBox(
+       room_dim, fs=fs, materials=pra.Material(e_absorption), max_order=max_order
+   )
+   """
+   max_order = 2
+      
    room = pra.ShoeBox(
       room_dim,
       fs=fs,
-      # materials=pra.Material(e_absorption),
+      #materials=pra.Material(e_absorption),
       materials=m,
       max_order=max_order,
-      #max_order=2,
       # ray_tracing=True,
-      air_absorption=True
+      #air_absorption=True
       )
+   
+   print("....", "\n", "....", "\n",
+         "RT60 =  ", rt60, "\n"
+         "ISM Order =  ", max_order, "\n"
+         "Ceiling Material Coeffs =  ", m["ceiling"].absorption_coeffs, "\n"
+         "Floor Material Coeffs =  ", m["floor"].absorption_coeffs, "\n"
+         "East Wall Material Coeffs =  ", m["east"].absorption_coeffs, "\n"
+         "West Wall Material Coeffs =  ", m["west"].absorption_coeffs, "\n"
+         "North Wall Material Coeffs =  ", m["north"].absorption_coeffs, "\n"
+         "South Wall Material Coeffs =  ", m["south"].absorption_coeffs, "\n"
+         " .... " )
 
    # import a mono wavfile as the source signal
    # the sampling frequency should match that of the room
 
    # place the source in the room
-   room.add_source([2.5, 1.5, 1.50], signal=audio1, delay=0.0)
-   room.add_source([2.5, 3.3, 1.50], signal=audio0, delay=0.0)
+   """
+   Source and reciever heights should be generally at the same level
+   """
+   room.add_source([2.5, 1.5, 1.2], signal=audio1, delay=0.0)
+   room.add_source([2.5, 3.3, 1.2], signal=audio0, delay=0.0)
 
    # define the locations of the microphones
 
@@ -146,7 +166,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
 
     # Run the simulation (this will also build the RIR automatically)
    room.simulate()
-
+   
    room.mic_array.to_wav(
         f"mix16000.wav",
         norm=True,
@@ -165,3 +185,9 @@ if __name__ == "__main__":
    room_mix(files, micsetup='stereo', plot=True)
    
    
+   """
+   Findings:
+      From here we are getting a sound (i.e. music etc.) wav file as a results of two speakers recorded at the a stereo steup of microphones (That is all)
+   """
+
+
