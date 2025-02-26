@@ -43,7 +43,7 @@ fs , audio1 = wavfile.read('SI889_48000.wav')
 """
 
 
-def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
+def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
    # Files: List of files with the audio sources
    # plot=True: Room setup is plotted
    # micsetup='cube' #'square' 'stereo' : possible microphone setups
@@ -55,8 +55,9 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
    # The desired reverberation time and dimensions of the room
    # rt60 = 0.1# seconds
    
-   room_dim = [5, 4, 2.5]  # meters
+   room_dim = [5, 4, 3]  # meters
    """
+   MI: Comments:
    The calculation of material properties based on RT60 in Pyroomacoustics is an approximation and may not be entirely realistic when applied
    to real-time scenarios, especially in a stereo setup. RT60 provides an estimate of the overall reverberation characteristics of a room,
    but it does not account for dynamic changes, directional reflections, or spatial variations in absorption and diffusion that occur in real-time audio processing.
@@ -65,11 +66,14 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
    """
 
    # We invert Sabine's formula to obtain the parameters for the ISM simulator
-   
-   #e_absorption, max_order = pra.inverse_sabine(rt60, room_dim)
+   # e_absorption, max_order = pra.inverse_sabine(rt60, room_dim)
    # m = pra.Material(energy_absorption="hard_surface") # OR
    
-   # Here is an example of using a realistic room for RIR synthesis while incorporating e_absorption with real-world materials
+   """
+   MI: Comments:
+   Here is an example of using a realistic room for RIR synthesis while incorporating e_absorption with real-world materials
+   """
+
    m = pra.make_materials(
       ceiling="hard_surface",
       floor="carpet_cotton",
@@ -80,7 +84,6 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
       )
    
    #print("e_absorption=", e_absorption, "max_order =", max_order)
-   
    # Create the room
    # In main code ISM is use to calculate the RIR. The order is very high. Reason? I recommend order up to 2 or 3.
    """
@@ -89,7 +92,6 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
    )
    """
    max_order = 2
-      
    room = pra.ShoeBox(
       room_dim,
       fs=fs,
@@ -97,7 +99,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
       materials=m,
       max_order=max_order,
       # ray_tracing=True,
-      #air_absorption=True
+      air_absorption=True
       )
    
    print("....", "\n", "....", "\n",
@@ -116,6 +118,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
 
    # place the source in the room
    """
+   MI: Comments:
    Source and reciever heights should be generally at the same level
    """
    room.add_source([2.5, 1.5, 1.2], signal=audio1, delay=0.0)
@@ -155,6 +158,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
         ]
 
     # finally place the array in the room
+   
    room.add_microphone_array(mic_locs)
 
    if plot == True:
@@ -173,8 +177,10 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.5):
         bitdepth=np.int16,
     )
    print("wrote to mix16000.wav")
-   room.plot_rir()
-   plt.show()
+   if plot==True:
+      room.plot_rir()
+      plt.show()
+  
    return
 
 
@@ -182,12 +188,13 @@ if __name__ == "__main__":
    # files=('pinkish16.wav', 'espeakwav_16.wav')
    files = ('espeakfemale_16.wav', 'espeakwav_16.wav')
    # room_mix(files, micsetup='cube', plot=True)
-   room_mix(files, micsetup='stereo', plot=True)
+   room_mix(files, micsetup='stereo', plot=True, rt60=0.4)
    
    
    """
-   Findings:
-      From here we are getting a sound (i.e. music etc.) wav file as a results of two speakers recorded at the a stereo steup of microphones (That is all)
+   MI: Comments:
+      Findings:
+         From here we are getting a sound (i.e. music etc.) wav file as a results of two speakers recorded at the a stereo steup of microphones (That is all)
    """
 
 
