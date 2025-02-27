@@ -4,7 +4,7 @@ import wave
 
 SAMPLE_RATE = 44100
 CHANNELS = 2
-DURATION = 20  # Record 10 seconds
+DURATION = 5  # Record 10 seconds
 
 print("🎙️ Recording...")
 recorded_audio = sd.rec(int(SAMPLE_RATE * DURATION), samplerate=SAMPLE_RATE, channels=CHANNELS, dtype=np.float32)
