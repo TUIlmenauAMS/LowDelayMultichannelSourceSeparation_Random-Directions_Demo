@@ -1,3 +1,10 @@
+"""
+Description:
+This Python script performs blind source separation (BSS) of two audio sources recorded using a stereo microphone.
+The separation is based on fractional delay and attenuation differences between the two microphone signals.
+The algorithm is optimized for real-time applications with low delay and low computational complexity.
+"""
+
 #2 Channel source separation using fractional delays and attenuations between the 
 #microphone signals as relative impulse response, and online update as optimization
 #for real time applications with low delay and low complexity.
@@ -11,9 +18,11 @@ maxdelay = 60 #maximum expected delay, to fill up coeff array to constant length
 
 def allp_delayfilt(tau):
     '''
-    produces a Fractional-delay All-pass Filter
+    Generates a fractional-delay all-pass filter to simulate small delays.
     Arguments:tau = fractional delay in samples. When 'tau' is a float - sinc function. When 'tau' is an integer - just impulse.
     type of tau: float or int
+    Uses a recursive formula to compute the filter coefficients.
+    Ensures phase response remains unchanged while delaying the signal.
     :return:
         a: Denumerator of the transfer function
         b: Numerator of the transfer function
@@ -34,17 +43,27 @@ def allp_delayfilt(tau):
     return a, b
     
 def unmixing(coeffs, X, state0, state1):
-   #Applies an anmixing matrix build from coeffs to a stereo signal X
-   #Arguments: coeffs = (attenuation 0, attenuation 1, delay0, delay1)
-   #X= Stereo signal from the microphones
-   #state0, state1 = states from previous delay filter run, important if applied
-   #to consecutive blocks of samples.
-   #Returns the resulting (unmixed) stereo signal X_del
-   #Unmixing Process:
-   #Delayed and attenuated versions of opposing microphones are subtracted:
-   #Xdel0= X0- att0 * del0(X1)
-   #Xdel1= X1- att1 * del1(X0)
+   """
+   Uses an adaptive filter to separate two mixed audio sources.
+   The filter applies different attenuations and delays to the signals.
+   Applies an anmixing matrix build from coeffs to a stereo signal X
+   Arguments:
+      coeffs = (attenuation 0, attenuation 1, delay0, delay1)
+      X= Stereo signal from the microphones
+      state0, state1 = states from previous delay filter run, important if applied
+      to consecutive blocks of samples.
+   Returns:
+      The resulting (unmixed) stereo signal X_del
+   Unmixing Process:
+      The delayed and attenuated signals are subtracted to perform separation:
+         Attenuation values are clipped to prevent excessive amplification.
+         Delay values are adjusted within [0, maxdelay] to ensure stability.
+         Fractional-delay filters a0, b0, a1, b1 are created
+   Unmixing equations:
+      Xdel0= X0- att0 * del0(X1)
+      Xdel1= X1- att1 * del1(X0)
 
+   """
    #print("coeffs =", coeffs)
    X_del=np.zeros(X.shape)
    #maxdelay = maximum expected delay, to fill up coeff array to constant length
@@ -72,28 +91,40 @@ def unmixing(coeffs, X, state0, state1):
    return X_del, state0, state1
   
 def pdf(x, bins):
-  #Function to extimate the probability density distribution of a signal (in a 1d array)
-  #arguments: x: 1d array, contains a signal
-  #bins: # of bins for the histogram computation
-  #returns:  the pdf
-
-  hist, binedges=np.histogram(x,bins)
-  #print("hist=", hist)
-  pdf=1.0*hist/(np.sum(hist)+1e-6)
-  return pdf
-  
-def kldivergence(P,Q):
-  #Function to compute the Kullback-Leiber-Divergence, see:
-  #https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence
-  #Args: P,Q: pdf of 2 signals
-  #returns: KL Divergence D_KL(P||Q)
+   """
+   Function to extimate the probability density distribution of a signal (in a 1d array)
+   arguments: x: 1d array, contains a signal
+   bins: # of bins for the histogram computation
+   returns:  the pdf   
    
-  abskl= np.sum( P * np.log((P+1e-6)/(Q+1e-6)) )
-  return abskl
+   """
+   hist, binedges=np.histogram(x,bins)
+   #print("hist=", hist)
+   pdf=1.0*hist/(np.sum(hist)+1e-6)
+   return pdf
+
+def kldivergence(P,Q):
+   """
+   Measures the difference between the PDFs of the two separated signals:
+      Computes the normalized magnitude of the (unmixed) channels Xunm and then applies
+      The Kullback-Leibler divergence, and returns its negative value for minimization
+   Helps evaluate the separation quality
+   
+   Note: Function to compute the Kullback-Leiber-Divergence, see: https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence
+   Args: P,Q: pdf of 2 signals
+   Return: L Divergence D_KL(P||Q)
+   
+   """
+   abskl= np.sum( P * np.log((P+1e-6)/(Q+1e-6)) )
+   return abskl
   
-def abskl(Xunm):  
-   #computes the normalized magnitude of the (unmixed) channels Xunm and then applies 
-   #the Kullback-Leibler divergence, and returns its negative value for minimization
+def abskl(Xunm):
+   """
+   Computes absolute KL-divergence between the unmixed signals.
+   Normalization: The absolute values of the separated signals are normalized to make them behave like probability distributions.
+   Goal: Minimize KL-divergence to make each signal statistically independent.
+   
+   """
    X_abs=np.abs(Xunm)
    #normalize to sum()=1, to make it look like a probability:
    X_abs[:,0]=X_abs[:,0]/np.sum(X_abs[:,0])
@@ -135,17 +166,23 @@ def playsound(audio, samplingRate, channels):
     return  
 
 def blockseparationoptimization(coeffs, Xblock, state0, state1):
-   #Reads in a block of a stereo signal, improves the unmixing coefficients,
-   #applies them and returns the unmixed block
-   #Arguments:
-   #coeffs: array of the 4 unmixing coefficients
-   #Xblock: Block of the stereo signal to unmix
-   #state0, state1: Filter states for the IIR filter, length is maxdelay +1
-   #returns: 
-   #Xunm: the unmixed stereo block resulting from the updated coefficients 
-   #coeffs: The updated coefficients 
-   #state0, state1 : the new filter states
-
+   """
+   This function optimizes the unmixing process using a random search approach:
+      Starts with initial attenuation/delay values.
+      Evaluates separation quality using KL-divergence.
+         Reads in a block of a stereo signal, improves the unmixing coefficients, applies them and returns the unmixed block
+      Applies small random variations to the coefficients.
+      Keeps the new coefficients if they improve the separation.
+      Updates the states of the filters to maintain continuity.
+   Arguments:
+      coeffs: array of the 4 unmixing coefficients
+      Xblock: Block of the stereo signal to unmix
+      state0, state1: Filter states for the IIR filter, length is maxdelay +1
+   Returns: 
+      Xunm: the unmixed stereo block resulting from the updated coefficients 
+      coeffs: The updated coefficients 
+      state0, state1 : the new filter states
+   """
    #Simple online optimization, using random directions optimization:
    #Old values 0:
    Xunm0, state00, state10 =unmixing(coeffs, Xblock, state0, state1) #starting point
