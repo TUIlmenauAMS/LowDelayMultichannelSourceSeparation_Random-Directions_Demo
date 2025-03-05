@@ -5,9 +5,11 @@ import scipy.io.wavfile as wav
 import matplotlib.pyplot as plt
 import threading
 
+print(sf.query_devices())
+
 # 🎧 Load two different sound sources (e.g., speech or music files)
-source1, sr1 = sf.read("source1.wav")  # First speaker's audio
-source2, sr2 = sf.read("source2.wav")  # Second speaker's audio
+source1, sr1 = sf.read("/home/imran/AMS GitHub/LowDelayMultichannelSourceSeparation_Random-Directions_Demo/measurements/Audio Dataset/drums.wav")  # First speaker's audio
+source2, sr2 = sf.read("/home/imran/AMS GitHub/LowDelayMultichannelSourceSeparation_Random-Directions_Demo/measurements/Audio Dataset/mspeech.wav")  # Second speaker's audio
 
 # Ensure both sources have the same sample rate
 assert sr1 == sr2, "Sample rates of both sources must be the same!"
@@ -18,8 +20,8 @@ duration = min(len(source1), len(source2)) / fs  # Set duration to match shortes
 channels = 2  # Two-channel recording
 
 # Normalize sources to prevent clipping
-source1 = source1 / np.max(np.abs(source1))
-source2 = source2 / np.max(np.abs(source2))
+source1 = source1[:int(duration)] / np.max(np.abs(source1))
+source2 = source2[:int(duration)] / np.max(np.abs(source2))
 
 # Combine into stereo output (source1 → Left speaker, source2 → Right speaker)
 stereo_output = np.column_stack((source1, source2))
