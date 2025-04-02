@@ -1,0 +1,25 @@
+# Ignore all .wav audio files
+*.wav
+
+# Ignore Python virtual environments
+venv/
+.venv/
+*/venv/
+*/.venv/
+
+# Ignore common OS and IDE-specific files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.swn
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore logs and temp files
+*.log
+*.tmp

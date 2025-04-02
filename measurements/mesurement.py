@@ -7,7 +7,7 @@ import threading
 
 print(sf.query_devices())
 
-# 🎧 Load two different sound sources (e.g., speech or music files)
+# Load two different sound sources (e.g., speech or music files)
 source1, sr1 = sf.read("/home/imran/AMS GitHub/LowDelayMultichannelSourceSeparation_Random-Directions_Demo/measurements/Audio Dataset/drums.wav")  # First speaker's audio
 source2, sr2 = sf.read("/home/imran/AMS GitHub/LowDelayMultichannelSourceSeparation_Random-Directions_Demo/measurements/Audio Dataset/mspeech.wav")  # Second speaker's audio
 

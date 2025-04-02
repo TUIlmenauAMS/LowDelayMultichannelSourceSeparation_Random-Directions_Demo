@@ -1,21 +1,25 @@
 """
 Description:
-This Python script performs blind source separation (BSS) of two audio sources recorded using a stereo microphone.
-The separation is based on fractional delay and attenuation differences between the two microphone signals.
-The algorithm is optimized for real-time applications with low delay and low computational complexity.
-"""
+   This Python script performs blind source separation (BSS) of two audio sources recorded using a stereo microphone.
+   The separation is based on fractional delay and attenuation differences between the two microphone signals.
+   The algorithm is optimized for real-time applications with low delay and low computational complexity.
 
-# 2 Channel source separation using fractional delays and attenuations between the
-# microphone signals as relative impulse response, and online update as optimization
-# for real time applications with low delay and low complexity.
-# Based on ICAabskl_puredelay_lowpass.py
-# With only random directions, without +- for them.
-# Gerald Schuller, April 2019
+Two Channel source separation using fractional delays and attenuations between the
+microphone signals as relative impulse response, and online update as optimization
+for real time applications with low delay and low complexity.
+Based on ICAabskl_puredelay_lowpass.py
+With only random directions, without +- for them.
+Gerald Schuller, April 2019
+
+Modified on March 2025
+
+"""
 
 import numpy as np
 import scipy.signal
-maxdelay = 60  # maximum expected delay, to fill up coeff array to constant length
 
+maxdelay = 60  # maximum expected delay, to fill up coeff array to constant length
+coeffweights = np.array([0.1, 0.1, 1.0, 1.0])*0.4
 
 def allp_delayfilt(tau):
     '''
@@ -248,7 +252,6 @@ def blockseparationoptimization(coeffs, Xblock, state0, state1):
     return Xunm, coeffs, state0, state1
 
 
-coeffweights = np.array([0.1, 0.1, 1.0, 1.0])*0.4
 
 # run it from file:
 if __name__ == '__main__':
@@ -274,8 +277,9 @@ if __name__ == '__main__':
     # samplerate, X = wav.read("stereotest2.wav")
     X = X*1.0/np.max(abs(X))
 
+    """ What is the purpose of this line? """
     os.system('espeak -s 120 "The original signal"')
-    playsound(X*2**15, samplerate, 2)
+    # playsound(X*2**15, samplerate, 2)
 
     Blocksize = 1024
     M = 8  # number of blocks in signal memory
@@ -345,3 +349,4 @@ if __name__ == '__main__':
     playsound(X_del[:, 0]*2**15, samplerate, 1)
     os.system('espeak -s 120 "Separated Channel 1"')
     playsound(X_del[:, 1]*2**15, samplerate, 1)
+
