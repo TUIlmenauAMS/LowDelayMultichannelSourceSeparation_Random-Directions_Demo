@@ -205,7 +205,7 @@ def blockseparationoptimization(coeffs, Xblock, state0, state1):
         coeffs, Xblock, state0, state1)  # starting point
     negabskl0 = abskl(Xunm0)
     # P=pdf(Xunm0[:,0],100); Q=pdf(Xunm0[:,1],100); negabskl0=-kldivergence(P,Q)-kldivergence(Q,P)
-    #
+        #
     # global negabskl0
     # print("Block m=", m, "negabskl=", negabskl0)
     # Small random variation of coefficients, -0.05..0.05 for attenuations, -0.5..0.5 for delays:
