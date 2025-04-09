@@ -260,7 +260,7 @@ if __name__ == '__main__':
     # import scipy.optimize as opt
     import os
     import matplotlib.pyplot as plt
-
+    
     # samplerate, X = wav.read("stereomoving.wav")
     # samplerate, X = wav.read("stereo_record_14.wav")
     #samplerate, X = wav.read("stereovoices.wav")
@@ -318,15 +318,44 @@ if __name__ == '__main__':
     # Loop over the signal blocks:
     for m in range(Blocks):
         print("Block m=", m)
+        # Take data from X as block by block (of size 1024)
         Xblock = X[m*Blocksize+np.arange(Blocksize), :]
         # shift old samples left
         sigmemory[:-Blocksize, :] = sigmemory[Blocksize:, :]
         sigmemory[-Blocksize:, :] = Xblock  # Write new block on right end
-
+        
+        plotting = True
+        if plotting == True:
+            plt.subplot(10,1,1)
+            plt.plot(sigmemory[:,0])
+        
         # Xunm, coeffs, state0, state1 = blockseparationoptimization(coeffs, Xblock, state0, state1)
         # shift states 1 left to make space for the newest state
         state0[:, :-1] = state0[:, 1:]
         state1[:, :-1] = state1[:, 1:]
+        
+        if plotting == True:
+            plt.subplot(10,1,2)
+            plt.plot(state0[:,0])
+            plt.subplot(10,1,3)
+            plt.plot(state0[:,1])
+            plt.subplot(10,1,4)
+            plt.plot(state0[:,2])
+            plt.subplot(10,1,5)
+            plt.plot(state0[:,3])
+            plt.subplot(10,1,6)
+            plt.plot(state0[:,4])
+            plt.subplot(10,1,7)
+            plt.plot(state0[:,5])
+            plt.subplot(10,1,8)
+            plt.plot(state0[:,6])
+            plt.subplot(10,1,9)
+            plt.plot(state0[:,7])
+            plt.subplot(10,1,10)
+            plt.plot(state0[:,8])
+            plt.show()
+        
+        
         Xunm, coeffs, state0[:, -1], state1[:, -1] = blockseparationoptimization(
             coeffs, sigmemory, state0[:, -M-1], state1[:, -M-1])
 
