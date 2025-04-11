@@ -53,7 +53,7 @@ def unmixing(coeffs, X, state0, state1):
     """
     Uses an adaptive filter to separate two mixed audio sources.
     The filter applies different attenuations and delays to the signals.
-    Applies an anmixing matrix build from coeffs to a stereo signal X
+    Applies an unmixing matrix build from coeffs to a stereo signal X
     Arguments:
        coeffs = (attenuation 0, attenuation 1, delay0, delay1)
        X= Stereo signal from the microphones
