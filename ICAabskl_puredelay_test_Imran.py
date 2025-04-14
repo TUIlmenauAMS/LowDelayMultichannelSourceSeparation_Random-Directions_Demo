@@ -261,8 +261,8 @@ if __name__ == '__main__':
     import os
     import matplotlib.pyplot as plt
     
-    samplerate, X = wav.read("measurements/Office_Measurements/1/tda_audio1_1.wav")
-    #samplerate, X = wav.read("mix16000.wav")
+    #samplerate, X = wav.read("measurements/Office_Measurements/1/tda_audio1_1.wav")
+    samplerate, X = wav.read("mix16000.wav")
     # samplerate, X = wav.read("stereomoving.wav")
     # samplerate, X = wav.read("stereo_record_14.wav")
     #samplerate, X = wav.read("stereovoices.wav")
@@ -329,7 +329,7 @@ if __name__ == '__main__':
         sigmemory[:-Blocksize, :] = sigmemory[Blocksize:, :]
         sigmemory[-Blocksize:, :] = Xblock  # Write new block on right end
 
-        # Xunm, coeffs, state0, state1 = blockseparationoptimization(coeffs, Xblock, state0, state1)
+         # Xunm, coeffs, state0, state1 = blockseparationoptimization(coeffs, Xblock, state0, state1)
         # shift states 1 left to make space for the newest state
         state0[:, :-1] = state0[:, 1:]
         state1[:, :-1] = state1[:, 1:]
