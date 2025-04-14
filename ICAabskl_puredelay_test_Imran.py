@@ -69,8 +69,8 @@ def unmixing(coeffs, X, state0, state1):
     Unmixing equations:
        Xdel0= X0- att0 * del0(X1)
        Xdel1= X1- att1 * del1(X0)
-
     """
+    
     # print("coeffs =", coeffs)
     X_del = np.zeros(X.shape)
     # maxdelay = maximum expected delay, to fill up coeff array to constant length
@@ -261,15 +261,15 @@ if __name__ == '__main__':
     import os
     import matplotlib.pyplot as plt
     
+    samplerate, X = wav.read("measurements/Office_Measurements/1/tda_audio1_1.wav")
+    #samplerate, X = wav.read("mix16000.wav")
     # samplerate, X = wav.read("stereomoving.wav")
     # samplerate, X = wav.read("stereo_record_14.wav")
     #samplerate, X = wav.read("stereovoices.wav")
-    samplerate, X = wav.read("mix16000.wav")
     # samplerate, X = wav.read("testfile_IDMT_dual_mic_array.wav")
     # samplerate, X = wav.read("2_channel_test_audio.wav")
     # samplerate, X = wav.read("/home/schuller/Nextcloud/Teaching/GeraldsBSS/7_channel_test_audio5.wav")
     # X=X[:,3::3]
-    print("X.shape=", X.shape)
     # samplerate, X = wav.read("stereovoicemusic4.wav")
     # samplerate, X = wav.read("Schmoo.wav")
     # samplerate, X = wav.read("s_chapman.wav")
@@ -277,6 +277,7 @@ if __name__ == '__main__':
     # samplerate, X = wav.read("sepchanstereo.wav")
     # samplerate, X = wav.read("stereotest2.wav")
     X = X*1.0/np.max(abs(X))
+    print("X.shape=", X.shape)
 
     """ What is the purpose of this line? """
     os.system('espeak -s 120 "The original signal"')
@@ -315,6 +316,10 @@ if __name__ == '__main__':
     X_del = np.zeros(X.shape)
     sigmemory = np.zeros((Blocksize*M, 2))
 
+    plotting = True
+    if plotting == True:
+        fig, ax = plt.subplots()
+
     # Loop over the signal blocks:
     for m in range(Blocks):
         print("Block m=", m)
@@ -323,38 +328,35 @@ if __name__ == '__main__':
         # shift old samples left
         sigmemory[:-Blocksize, :] = sigmemory[Blocksize:, :]
         sigmemory[-Blocksize:, :] = Xblock  # Write new block on right end
-        
-        plotting = True
-        if plotting == True:
-            plt.subplot(10,1,1)
-            plt.plot(sigmemory[:,0])
-        
+
         # Xunm, coeffs, state0, state1 = blockseparationoptimization(coeffs, Xblock, state0, state1)
         # shift states 1 left to make space for the newest state
         state0[:, :-1] = state0[:, 1:]
         state1[:, :-1] = state1[:, 1:]
-        
+
         if plotting == True:
+            plt.subplot(10,1,1)
+            plt.plot(sigmemory[:,0])
             plt.subplot(10,1,2)
-            plt.plot(state0[:,0])
+            plt.stem(state0[:,0])
             plt.subplot(10,1,3)
-            plt.plot(state0[:,1])
+            plt.stem(state0[:,1])
             plt.subplot(10,1,4)
-            plt.plot(state0[:,2])
+            plt.stem(state0[:,2])
             plt.subplot(10,1,5)
-            plt.plot(state0[:,3])
+            plt.stem(state0[:,3])
             plt.subplot(10,1,6)
-            plt.plot(state0[:,4])
+            plt.stem(state0[:,4])
             plt.subplot(10,1,7)
-            plt.plot(state0[:,5])
+            plt.stem(state0[:,5])
             plt.subplot(10,1,8)
-            plt.plot(state0[:,6])
+            plt.stem(state0[:,6])
             plt.subplot(10,1,9)
-            plt.plot(state0[:,7])
+            plt.stem(state0[:,7])
             plt.subplot(10,1,10)
-            plt.plot(state0[:,8])
+            plt.stem(state0[:,8])
             plt.show()
-        
+
         
         Xunm, coeffs, state0[:, -1], state1[:, -1] = blockseparationoptimization(
             coeffs, sigmemory, state0[:, -M-1], state1[:, -M-1])
