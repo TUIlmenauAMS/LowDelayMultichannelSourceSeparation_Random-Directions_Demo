@@ -5,6 +5,7 @@ Gerald Schuller, 2021-08-09
 import pyroomacoustics as pra
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
+import soundfile as sf
 import numpy as np
 
 # 16000 Hz sampling rate:
@@ -170,6 +171,14 @@ def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
 
     # Run the simulation (this will also build the RIR automatically)
    room.simulate()
+   
+   """ Geting RIR and Saving
+   rir = room.rir[0][0]
+   sf.write(f"RIRs_simulated.wav", rir, fs)
+   """
+
+   
+   
    
    room.mic_array.to_wav(
         f"mix16000.wav",
