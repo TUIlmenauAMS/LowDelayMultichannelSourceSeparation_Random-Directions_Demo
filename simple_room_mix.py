@@ -177,9 +177,6 @@ def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
    sf.write(f"RIRs_simulated.wav", rir, fs)
    """
 
-   
-   
-   
    room.mic_array.to_wav(
         f"mix16000.wav",
         norm=True,
