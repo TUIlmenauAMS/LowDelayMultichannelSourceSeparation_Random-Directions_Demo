@@ -127,6 +127,16 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
        bitdepth=np.int16,
    )
    print("wrote to mix16000.wav")
+   
+   if plot== True:
+      rrir0=np.real(ifft(fft(room.rir[0][1][:573]) /fft(room.rir[0][0]) ))
+      #print("rrir0=", rrir0)
+      maxind=np.argmax(rrir0)
+      print("Delay=", maxind)
+      plt.figure()
+      plt.plot(rrir0)
+      plt.title("Relative Room Impulse Response for mic 0")
+      
    return
 
 if __name__ == "__main__":
