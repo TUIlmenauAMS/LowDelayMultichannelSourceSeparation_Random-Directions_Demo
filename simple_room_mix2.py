@@ -196,7 +196,8 @@ def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
       print("room.rir[0][0].shape=", room.rir[0][0].shape)
       print("room.rir[0][1].shape=", room.rir[0][1].shape)
       
-      rrir0=np.real(ifft(fft(room.rir[0][1][:573]) /fft(room.rir[0][0]) ))
+      Lrir=min(len(room.rir[0][1]), len(room.rir[0][0]))
+      rrir0=np.real(ifft(fft(room.rir[0][1][:Lrir]) /fft(room.rir[0][0][:Lrir]) ))
       #print("rrir0=", rrir0)
       maxind=np.argmax(rrir0)
       print("Delay=", maxind)
