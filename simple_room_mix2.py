@@ -4,8 +4,12 @@ Gerald Schuller, 2021-08-09
 """
 import pyroomacoustics as pra
 from scipy.io import wavfile
+import scipy.signal
 import matplotlib.pyplot as plt
+import soundfile as sf
 import numpy as np
+
+from scipy.fftpack import fft, ifft, fftshift
 
 # 16000 Hz sampling rate:
 # """
@@ -171,6 +175,14 @@ def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
     # Run the simulation (this will also build the RIR automatically)
    room.simulate()
    
+   #Geting RIR and Saving
+   #mic, source:
+   for mic in range(2):
+      for source in range(2):
+         rir = room.rir[mic][source]
+         sf.write(f"RIRs_simulated{mic}_{source}.wav", rir, fs)
+   print("wrote to 'RIRs_simulated...wav'")
+
    room.mic_array.to_wav(
         f"mix16000.wav",
         norm=True,
@@ -179,8 +191,22 @@ def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
    print("wrote to mix16000.wav")
    if plot==True:
       room.plot_rir()
-      plt.show()
-  
+      #plt.show()
+      
+      print("room.rir[0][0].shape=", room.rir[0][0].shape)
+      print("room.rir[0][1].shape=", room.rir[0][1].shape)
+      
+      Lrir=min(len(room.rir[0][1]), len(room.rir[0][0]))
+      rrir0=np.real(ifft(fft(room.rir[0][1][:Lrir]) /fft(room.rir[0][0][:Lrir]) ))
+      #print("rrir0=", rrir0)
+      maxind=np.argmax(rrir0)
+      print("Delay=", maxind)
+      plt.figure()
+      plt.plot(rrir0)
+      plt.title("Relative Room Impulse Response for mic 0")
+      #plt.plot(scipy.signal.deconvolve(room.rir[1][1], room.rir[1][0]))
+      #plt.title("Relative Room Impulse Response for mic 0")
+      plt.show
    return
 
 
