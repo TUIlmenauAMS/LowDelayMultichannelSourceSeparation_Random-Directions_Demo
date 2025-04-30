@@ -142,6 +142,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
       plt.figure()
       plt.plot(rrir0)
       plt.title("Relative Room Impulse Response for mic 0")
+      plt.show()
    #"""
       
    return
