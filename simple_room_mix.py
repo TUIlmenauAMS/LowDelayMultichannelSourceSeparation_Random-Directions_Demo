@@ -119,7 +119,9 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
       ax.set_ylim([0, 5])
       ax.set_zlim([0, 3]);
       plt.show()
-
+   
+   room.rir_duration = 0.5 # in seconds
+   
    # Run the simulation (this will also build the RIR automatically)
    room.simulate()
 
@@ -129,22 +131,24 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
        bitdepth=np.int16,
    )
    print("wrote to mix16000.wav")
-   """
+   print("room.rir[0][0].shape=", room.rir[0][0].shape)
+   #"""
    if plot== True:
-      rrir0=np.real(ifft(fft(room.rir[0][1][:573]) /fft(room.rir[0][0]) ))
-      #print("rrir0=", rrir0)
+      Lrir=min(len(room.rir[0][1]), len(room.rir[0][0]))
+      rrir0=np.real(ifft(fft(room.rir[0][1][:Lrir]) /fft(room.rir[0][0][:Lrir]) ))
+      #print("rrir0.shape=", rrir0.shape)
       maxind=np.argmax(rrir0)
       print("Delay=", maxind)
       plt.figure()
       plt.plot(rrir0)
       plt.title("Relative Room Impulse Response for mic 0")
-   """
+   #"""
       
    return
 
 if __name__ == "__main__":
-   #files=('pinkish16.wav', 'espeakwav_16.wav')
-   files=('espeakfemale_16.wav', 'espeakwav_16.wav')
+   files=('pinkish16.wav', 'espeakwav_16.wav')
+   #files=('espeakfemale_16.wav', 'espeakwav_16.wav')
    #room_mix(files, micsetup='cube', plot=True)
    room_mix(files, micsetup='stereo', plot=True)
 
