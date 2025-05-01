@@ -197,22 +197,38 @@ def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
       print("room.rir[0][1].shape=", room.rir[0][1].shape)
       
       Lrir=min(len(room.rir[0][1]), len(room.rir[0][0]))
+      print("Lrir=", Lrir)
+      #Relative Room Impulse Response for mic 0 from source 1
       rrir0=np.real(ifft(fft(room.rir[0][1][:Lrir]) /fft(room.rir[0][0][:Lrir]) ))
+      #Relative Room Impulse Response for mic 1 from source 0
+      rrir1=np.real(ifft(fft(room.rir[1][0][:Lrir]) /fft(room.rir[1][1][:Lrir]) ))
       #print("rrir0=", rrir0)
-      maxind=np.argmax(rrir0)
-      print("Delay=", maxind)
+      
       plt.figure()
       plt.plot(rrir0)
-      plt.title("Relative Room Impulse Response for mic 0")
+      plt.title("Relative Room Impulse Response for mic 0 from source 1")
       #plt.plot(scipy.signal.deconvolve(room.rir[1][1], room.rir[1][0]))
       #plt.title("Relative Room Impulse Response for mic 0")
       plt.show
+      #maxind0=np.argmax(rrir0)
+      maxind0=np.argpartition(rrir0,-2)[-2:] #2 largest peaks
+      maxind0=maxind0-(maxind0>Lrir/2)*Lrir #negative when larger than Lrir/2
+      print("Delay0=", maxind0)
+      
+      plt.figure()
+      plt.plot(rrir1)
+      plt.title("Relative Room Impulse Response for mic 1 from source 0")
+      plt.show()
+      #maxind1=np.argmax(rrir1)
+      maxind1=np.argpartition(rrir1,-2)[-2:] #2 largest peaks
+      maxind1=maxind1-(maxind1> Lrir/2)*Lrir
+      print("Delay1=", maxind1)
    return
 
 
 if __name__ == "__main__":
-   # files=('pinkish16.wav', 'espeakwav_16.wav')
-   files = ('espeakfemale_16.wav', 'espeakwav_16.wav')
+   files=('pinkish16.wav', 'espeakwav_16.wav')
+   #files = ('espeakfemale_16.wav', 'espeakwav_16.wav')
    # room_mix(files, micsetup='cube', plot=True)
    room_mix(files, micsetup='stereo', plot=True, rt60=0.4)
    
