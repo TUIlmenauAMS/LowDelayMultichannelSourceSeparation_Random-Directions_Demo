@@ -134,16 +134,33 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
    print("room.rir[0][0].shape=", room.rir[0][0].shape)
    #"""
    if plot== True:
-      room.plot_rir()
+      room.plot_rir()  #Index order: mic, source
       Lrir=min(len(room.rir[0][1]), len(room.rir[0][0]))
-      rrir0=np.real(ifft(fft(room.rir[0][1][:Lrir]) /fft(room.rir[0][0][:Lrir]) ))
       print("Lrir=", Lrir)
-      maxind=np.argmax(rrir0)
-      print("Delay=", maxind)
+      #Relative Room Impulse Response for mic 0 from source 1
+      rrir0=np.real(ifft(fft(room.rir[0][1][:Lrir]) /fft(room.rir[0][0][:Lrir]) ))
+      #Relative Room Impulse Response for mic 1 from source 0
+      rrir1=np.real(ifft(fft(room.rir[1][0][:Lrir]) /fft(room.rir[1][1][:Lrir]) ))
+
+      
       plt.figure()
       plt.plot(rrir0)
-      plt.title("Relative Room Impulse Response for mic 0")
+      plt.title("Relative Room Impulse Response for mic 0 from source 1")
       plt.show()
+      maxind0=np.argmax(rrir0)
+      if maxind0> Lrir/2:
+          maxind0=maxind0-Lrir
+      print("Delay0=", maxind0)
+      
+      plt.figure()
+      plt.plot(rrir1)
+      plt.title("Relative Room Impulse Response for mic 1 from source 0")
+      plt.show()
+      maxind1=np.argmax(rrir1)
+      if maxind1> Lrir/2:
+          maxind1=maxind1-Lrir
+      print("Delay1=", maxind1)
+      
    #"""
       
    return
