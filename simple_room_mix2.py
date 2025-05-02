@@ -212,6 +212,7 @@ def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
       plt.show
       #maxind0=np.argmax(rrir0)
       maxind0=np.argpartition(rrir0,-2)[-2:] #2 largest peaks
+      print("Attenuations0", rrir0[maxind0]) 
       maxind0=maxind0-(maxind0>Lrir/2)*Lrir #negative when larger than Lrir/2
       print("Delay0=", maxind0)
       
@@ -221,8 +222,10 @@ def room_mix(files, micsetup='stereo', plot=False, rt60=0.2):
       plt.show()
       #maxind1=np.argmax(rrir1)
       maxind1=np.argpartition(rrir1,-2)[-2:] #2 largest peaks
+      print("Attenuations1", rrir1[maxind1]) 
       maxind1=maxind1-(maxind1> Lrir/2)*Lrir
       print("Delay1=", maxind1)
+      
    return
 
 
