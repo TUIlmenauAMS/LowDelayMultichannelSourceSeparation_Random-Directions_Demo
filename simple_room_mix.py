@@ -145,7 +145,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
       
       plt.figure()
       plt.plot(rrir0)
-      plt.title("Relative Room Impulse Response for mic 0 from source 1")
+      plt.title("Relative Room Impulse Response between mic 0 and mic 1 from source 1")
       plt.show()
       maxind0=np.argmax(rrir0)
       print("Attenuation0", rrir0[maxind0])
@@ -155,7 +155,7 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
       
       plt.figure()
       plt.plot(rrir1)
-      plt.title("Relative Room Impulse Response for mic 1 from source 0")
+      plt.title("Relative Room Impulse Response between mic 1 and mic 0 from source 0")
       plt.show()
       maxind1=np.argmax(rrir1)
       print("Attenuation1", rrir1[maxind1])
