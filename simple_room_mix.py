@@ -138,9 +138,9 @@ def room_mix(files, micsetup='stereo', plot=True, rt60=0.1):
       Lrir=min(len(room.rir[0][1]), len(room.rir[0][0]))
       print("Lrir=", Lrir)
       #Relative Room Impulse Response for mic 0 from source 1
-      rrir0=np.real(ifft(fft(room.rir[0][1][:Lrir]) /fft(room.rir[0][0][:Lrir]) ))
+      rrir0=np.real(ifft(fft(room.rir[1][0][:Lrir]) /fft(room.rir[0][0][:Lrir]) ))
       #Relative Room Impulse Response for mic 1 from source 0
-      rrir1=np.real(ifft(fft(room.rir[1][0][:Lrir]) /fft(room.rir[1][1][:Lrir]) ))
+      rrir1=np.real(ifft(fft(room.rir[0][1][:Lrir]) /fft(room.rir[1][1][:Lrir]) ))
 
       
       plt.figure()
